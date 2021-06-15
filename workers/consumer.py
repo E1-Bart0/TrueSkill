@@ -17,9 +17,7 @@ class Consumer(AsyncWebsocketConsumer):
         try:
             content = json.loads(text_data)
         except JSONDecodeError as err:
-            error = Msg(
-                type="error", message={"raw_data": text_data, "error": err.args}
-            ).json
+            error = Msg(type="error", message={"raw_data": text_data, "error": err.args}).json
             await self.send(text_data=error)
         else:
             await self.message_handler(content)

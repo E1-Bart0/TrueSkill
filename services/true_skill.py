@@ -45,8 +45,11 @@ class TrueSkills:
 
     @classmethod
     def calculate_sigma_winner(
-            cls, mu_winner: float, sigma_winner: float, mu_looser: float,
-            sigma_looser: float
+        cls,
+        mu_winner: float,
+        sigma_winner: float,
+        mu_looser: float,
+        sigma_looser: float,
     ) -> float:
         c = cls.c(sigma_winner, sigma_looser)
         t = cls.t_multiply_by_c(mu_winner, mu_looser) / c
@@ -56,8 +59,11 @@ class TrueSkills:
 
     @classmethod
     def calculate_sigma_looser(
-            cls, mu_winner: float, sigma_winner: float, mu_looser: float,
-            sigma_looser: float
+        cls,
+        mu_winner: float,
+        sigma_winner: float,
+        mu_looser: float,
+        sigma_looser: float,
     ) -> float:
         c = cls.c(sigma_winner, sigma_looser)
         t = cls.t_multiply_by_c(mu_winner, mu_looser) / c
@@ -67,8 +73,11 @@ class TrueSkills:
 
     @classmethod
     def calculate_mu_winner(
-            cls, mu_winner: float, sigma_winner: float, mu_looser: float,
-            sigma_looser: float
+        cls,
+        mu_winner: float,
+        sigma_winner: float,
+        mu_looser: float,
+        sigma_looser: float,
     ) -> float:
         c = cls.c(sigma_winner, sigma_looser)
         t = cls.t_multiply_by_c(mu_winner, mu_looser) / c
@@ -77,8 +86,11 @@ class TrueSkills:
 
     @classmethod
     def calculate_mu_looser(
-            cls, mu_winner: float, sigma_winner: float, mu_looser: float,
-            sigma_looser: float
+        cls,
+        mu_winner: float,
+        sigma_winner: float,
+        mu_looser: float,
+        sigma_looser: float,
     ) -> float:
         c = cls.c(sigma_winner, sigma_looser)
         t = cls.t_multiply_by_c(mu_winner, mu_looser) / c
@@ -87,8 +99,11 @@ class TrueSkills:
 
     @classmethod
     def calculate_winner(
-            cls, mu_winner: float, sigma_winner: float, mu_looser: float,
-            sigma_looser: float
+        cls,
+        mu_winner: float,
+        sigma_winner: float,
+        mu_looser: float,
+        sigma_looser: float,
     ) -> Sequence[float]:
         mu = cls.calculate_mu_winner(mu_winner, sigma_winner, mu_looser, sigma_looser)
         sigma = cls.calculate_sigma_winner(mu_winner, sigma_winner, mu_looser, sigma_looser)
@@ -96,8 +111,11 @@ class TrueSkills:
 
     @classmethod
     def calculate_looser(
-            cls, mu_winner: float, sigma_winner: float, mu_looser: float,
-            sigma_looser: float
+        cls,
+        mu_winner: float,
+        sigma_winner: float,
+        mu_looser: float,
+        sigma_looser: float,
     ) -> Sequence[float]:
         mu = cls.calculate_mu_looser(mu_winner, sigma_winner, mu_looser, sigma_looser)
         sigma = cls.calculate_sigma_looser(mu_winner, sigma_winner, mu_looser, sigma_looser)
@@ -105,8 +123,11 @@ class TrueSkills:
 
     @classmethod
     def calculate_new_mu_sigma_for_winner_looser(
-            cls, mu_winner: float, sigma_winner: float, mu_looser: float,
-            sigma_looser: float
+        cls,
+        mu_winner: float,
+        sigma_winner: float,
+        mu_looser: float,
+        sigma_looser: float,
     ) -> Sequence[Sequence[float]]:
         winner = TrueSkills.calculate_winner(mu_winner, sigma_winner, mu_looser, sigma_looser)
         looser = TrueSkills.calculate_looser(mu_winner, sigma_winner, mu_looser, sigma_looser)
@@ -120,7 +141,7 @@ class TrueSkills:
     def get_match_probability(cls, mu_user1: float, sigma_user1: float, mu_user2: float, sigma_user2: float) -> float:
         c = cls.c(sigma_user1, sigma_user2)
         d = 2 * pow(cls.Beta, 2) / pow(c, 2)
-        power = - pow((mu_user1 - mu_user2), 2) / (2 * pow(c, 2))
+        power = -pow((mu_user1 - mu_user2), 2) / (2 * pow(c, 2))
         return exp(power) * sqrt(d)
 
     @classmethod
