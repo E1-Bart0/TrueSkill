@@ -11,7 +11,6 @@ from workers.models import Msg
 @unknown_module
 @introduced_module
 class Consumer(AsyncWebsocketConsumer):
-    pass
     handlers = {}
 
     async def receive(self, text_data=None, bytes_data=None):
