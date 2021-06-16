@@ -7,11 +7,8 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.layers import get_channel_layer
 
 from game_auth.models import User, Room
-from services.redis_hash import RedisHMap
 from services.user_matchmaking import MM
 from workers.models import Msg
-
-redis_storage_user_channel_name = RedisHMap('UserChannelName')
 
 
 def matchmaking(consumer: AsyncWebsocketConsumer.__class__):
@@ -33,7 +30,7 @@ def matchmaking(consumer: AsyncWebsocketConsumer.__class__):
 
     async def start_match(self: AsyncWebsocketConsumer.__class__, user: Type[User], enemy: Type[User]):
         user_channel_name = self.channel_name
-        enemy_channel_name = redis_storage_user_channel_name[str(enemy.uuid)]
+        enemy_channel_name = enemy.channel_name
         await add_users_to_channel_group((user, user_channel_name), (enemy, enemy_channel_name))
 
     async def add_users_to_channel_group(*channel_names):
@@ -51,10 +48,12 @@ def matchmaking(consumer: AsyncWebsocketConsumer.__class__):
         # await database_sync_to_async(room.save)()
         await channel_layer.group_send(str(room), main_msg.raw)
 
-    async def discard_user_from_channel_group(self: AsyncWebsocketConsumer.__class__, room_name):
+    async def discard_user_from_channel_group(self: AsyncWebsocketConsumer.__class__, room_name, users):
         user = self.scope['user']
+        channel_names = [u.channel_name for u in users]
         await delete_room(user.my_room.all())
-        await self.channel_layer.group_discard(room_name, self.channel_name)
+        for channel_name in channel_names:
+            await self.channel_layer.group_discard(room_name, channel_name)
 
     async def finish_match(self: AsyncWebsocketConsumer):
         user = self.scope['user']
@@ -65,7 +64,7 @@ def matchmaking(consumer: AsyncWebsocketConsumer.__class__):
         main_msg = Msg(type='matchmaking_room_send', message=msg.json)
 
         await self.channel_layer.group_send(str(room), main_msg.raw)
-        await discard_user_from_channel_group(self, str(room))
+        await discard_user_from_channel_group(self, str(room), users)
 
     @database_sync_to_async
     def find_user(user_uuid):
@@ -134,7 +133,7 @@ def introduced_module(
         """this override connect method"""
         user = await add_user_to_db()
         self.scope["user"] = user
-        redis_storage_user_channel_name.add(str(user.uuid), self.channel_name)
+        user.channel_name = self.channel_name
 
         # call parent method
         await old_connect(self)
@@ -147,7 +146,7 @@ def introduced_module(
     async def disconnect(self, close_code):
         """this override disconnect method"""
         user = self.scope["user"]
-        redis_storage_user_channel_name.pop(str(user.uuid))
+        del user.channel_name
 
         # call parent method
         await old_disconnect(self, close_code)

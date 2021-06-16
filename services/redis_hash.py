@@ -1,10 +1,8 @@
 import json
-from typing import Type, Union
 
 import redis
 
 from conf.settings import REDIS_HOST, REDIS_PORT
-from game_auth.models import User
 
 
 class RedisHMap:
@@ -15,7 +13,7 @@ class RedisHMap:
         self._redis.expire(structure_name, expiration_time)
         self.name = structure_name
 
-    def __contains__(self, user: Type[User]):
+    def __contains__(self, user):
         return self._redis.hexists(self.name, str(user.uuid))
 
     def __len__(self):
@@ -28,17 +26,17 @@ class RedisHMap:
     def __getitem__(self, item: str):
         return self._redis.hget(self.name, item).decode()
 
-    def add_uuid_value(self, user: Type[User]):
+    def add_uuid_value(self, user):
         return self._redis.hset(self.name, key=str(user.uuid), value=str(user))
 
     def add(self, key: str, value: str):
         return self._redis.hset(self.name, key=key, value=value)
 
-    def pop_user(self, user: Union[User, dict]):
-        if isinstance(user, User):
-            user_uuid = str(user.uuid)
-        else:
+    def pop_user(self, user):
+        if isinstance(user, dict):
             user_uuid = user['uuid']
+        else:
+            user_uuid = str(user.uuid)
         self._redis.hdel(self.name, 1, user_uuid)
         return self
 
