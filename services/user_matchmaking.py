@@ -18,7 +18,7 @@ class MM:
     probability = 0.5
 
     @classmethod
-    def calculate_mu_sigma_for_users(cls, *users: User) -> Sequence[Sequence[Rating]]:
+    def calculate_mu_sigma_for_users(cls, *users: "User") -> Sequence[Sequence[Rating]]:
         """
         :param users: from winner to looser
         :return: ((winner.mu, winner.sigma), (looser.mu, looser.sigma))
@@ -32,21 +32,21 @@ class MM:
         return quality(rating_group)
 
     @staticmethod
-    def update_mu_sigma_for_users(users: Sequence[User], data: Sequence[Sequence[Rating]]) -> None:
+    def update_mu_sigma_for_users(users: Sequence["User"], data: Sequence[Sequence[Rating]]) -> None:
         """
         :param users: from winner to looser
         :param data: ((winner.mu, winner.sigma), (looser.mu, looser.sigma))
         :return: None
         """
         for user, tuple_with_rating in zip(users, data):
-            user.update(mu=tuple_with_rating[0].mu, sigma=tuple_with_rating[1].sigma)
+            user.update(mu=tuple_with_rating[0].mu, sigma=tuple_with_rating[0].sigma)
 
     @staticmethod
     def calculate_rating(mu, sigma):
         return 10 * (10 * mu - 3 * sigma)
 
     @staticmethod
-    def match_1_vs_1_random_winner(users: Sequence[User]) -> None:
+    def match_1_vs_1_random_winner(users: Sequence["User"]) -> None:
         """Calculate new mu and sigma for winner and looser and update users"""
         users = list(users)
         random.shuffle(users)
@@ -56,7 +56,7 @@ class MM:
 
     @classmethod
     async def find_match_for_user(  # noqa: CCR001
-        cls, consumer: AsyncWebsocketConsumer.__class__, user: User, search_times: Optional[int] = 0
+        cls, consumer: AsyncWebsocketConsumer.__class__, user: "User", search_times: Optional[int] = 0
     ) -> None:
         """
         Find User and Enemy else just wait and increase user probability to find match
@@ -81,7 +81,7 @@ class MM:
 
     @classmethod
     async def _find_enemy_in_redis(
-        cls, user: User, search_times: int, consumer: AsyncWebsocketConsumer.__class__
+        cls, user: "User", search_times: int, consumer: AsyncWebsocketConsumer.__class__
     ) -> bool:
         """For each enemy in redis we calculating probability his match with User"""
         for enemy in redis_hash:
@@ -92,7 +92,7 @@ class MM:
         return False
 
     @classmethod
-    async def callback_to_consumer(cls, consumer: AsyncWebsocketConsumer.__class__, user: User, enemy: dict):
+    async def callback_to_consumer(cls, consumer: AsyncWebsocketConsumer.__class__, user: "User", enemy: dict):
         enemy = await cls.find_user_model(enemy["uuid"])
         redis_hash.pop_users(user, enemy)
         await consumer.handlers["matchmaking"].start_match(consumer, user, enemy)
@@ -100,4 +100,6 @@ class MM:
     @staticmethod
     @database_sync_to_async
     def find_user_model(user_uuid: str):
+        from game_auth.models import User
+
         return User.objects.get(uuid=user_uuid)

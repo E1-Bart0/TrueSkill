@@ -45,8 +45,8 @@ class RedisHMapMatchmakingStorage(RedisHMap):
     def add(self, key: str, value: str):
         return self._redis.hset(self.name, key=key, value=value)
 
-    def pop_users(self, *users: Sequence[Union[User, dict]]):
-        users_uuids = [str(user.uuid) if isinstance(user, User) else user["uuid"] for user in users]
+    def pop_users(self, *users: Sequence[Union["User", dict]]):
+        users_uuids = [user["uuid"] if isinstance(user, dict) else str(user.uuid) for user in users]
         self._redis.hdel(self.name, 1, *users_uuids)
 
     def __iter__(self) -> Iterable[dict]:
