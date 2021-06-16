@@ -11,7 +11,7 @@ from services.user_matchmaking import MM
 from workers.models import Msg
 
 
-def matchmaking(consumer: AsyncWebsocketConsumer.__class__):
+def matchmaking(consumer: AsyncWebsocketConsumer.__class__):  # noqa: CCR001
     async def match(self: AsyncWebsocketConsumer.__class__, content: dict) -> str:
         action = content["message"]["type"]
 
