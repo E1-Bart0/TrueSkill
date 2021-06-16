@@ -15,10 +15,12 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 
 import workers.routing
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'conf.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "conf.settings")
 django.setup()
 
-application = ProtocolTypeRouter({
-    "http": AsgiHandler(),
-    "websocket": URLRouter(workers.routing.websocket_urlpatterns)
-})
+application = ProtocolTypeRouter(
+    {
+        "http": AsgiHandler(),
+        "websocket": URLRouter(workers.routing.websocket_urlpatterns),
+    }
+)
