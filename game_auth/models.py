@@ -4,7 +4,7 @@ import uuid as uuid
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from services.true_skill import TrueSkills
+from services.user_matchmaking import MM
 
 
 class User(AbstractUser):
@@ -14,16 +14,16 @@ class User(AbstractUser):
 
     @property
     def rating(self):
-        return TrueSkills.calculate_rating(self.mu, self.sigma)
+        return MM.calculate_rating(self.mu, self.sigma)
 
     @property
     def as_string(self):
         user_dict = {"uuid": str(self.uuid), "mu": self.mu, "sigma": self.sigma}
         return json.dumps(user_dict)
 
-    def update(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+    def update(self, mu: float, sigma: float) -> None:
+        self.mu = mu
+        self.sigma = sigma
         self.save()
 
     def __str__(self):

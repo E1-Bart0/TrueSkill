@@ -1,10 +1,12 @@
 import json
-from typing import Type, Union, Iterable, Sequence
+from typing import Type, Union, Iterable, Sequence, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from game_auth.models import User
 
 import redis
 
 from conf.settings import REDIS_HOST, REDIS_PORT
-from game_auth.models import User
 
 
 class RedisHMap:
